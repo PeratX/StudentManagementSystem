@@ -5,59 +5,92 @@ IMPLEMENT_SERIAL(SMSFile, CObject, 0531)
 
 void SMSFile::Serialize(CArchive& ar)
 {
-	if(ar.IsStoring())
+	if (ar.IsStoring())
 	{
 		ar << int(subjects.size());
-		for(auto s : subjects)
+		for (auto s : subjects)
 		{
 			ar << s.second.num << s.second.name;
 		}
-		
+
 		ar << int(students.size());
-		for(auto s : students)
+		for (auto s : students)
 		{
 			ar << s.second.name << s.second.num << int(s.second.subjects.size());
-			for(auto i : s.second.subjects)
+			for (auto i : s.second.subjects)
 			{
 				ar << i.second.sub.num << i.second.mark << i.second.credit;
 			}
 		}
-	} else
+	}
+	else
 	{
 		int count;
 		ar >> count;
-		for(auto i = 0;i < count; i++)
+		for (auto i = 0; i < count; i++)
 		{
-			int32_t num;
-			CString name;
-			ar >> num >> name;
-			subjects[num] = { num, name };
+			Subject sub;
+			ar >> sub.num >> sub.name;
+			subjects.insert(pair<int32_t, Subject>(sub.num, sub));
 		}
 		ar >> count;
 
 		for (auto i = 0; i < count; i++)
 		{
-			int64_t num;
-			CString name;
+			Student stu;
 			int cnt;
-			ar >> name >> num >> cnt;
-			map<int, SubjectInfo> info;
-			for(auto j = 0; j < cnt; j++)
+			ar >> stu.name >> stu.num >> cnt;
+			for (auto j = 0; j < cnt; j++)
 			{
 				int32_t subNum;
-				int32_t mark;
-				double credit;
-				ar >> subNum >> mark >> credit;
-				info[subNum] = { subjects[subNum], mark, credit };
+				SubjectInfo info;
+				ar >> subNum >> info.mark >> info.credit;
+				info.sub = subjects[subNum];
+				stu.subjects.insert(pair<int32_t, SubjectInfo>(subNum, info));
 			}
-			students[num] = { num, name ,info };
+			students.insert(pair<int64_t, Student>(stu.num, stu));
 		}
 	}
 }
 
+void SMSFile::Open(CString p)
+{
+	path = p;
+	fileOpened = true;
+	Load();
+}
+
+
+void SMSFile::Load()
+{
+	if(fileOpened)
+	{
+		CFile file;
+		file.Open(path, CFile::modeRead);
+		CArchive ar(&file, CArchive::load);
+		Serialize(ar);
+		ar.Close();
+		file.Close();
+	}
+}
+
+void SMSFile::Save()
+{
+	if(fileOpened)
+	{
+		CFile file;
+		file.Open(path, CFile::modeCreate | CFile::modeWrite);
+		CArchive ar(&file, CArchive::store);
+		Serialize(ar);
+		ar.Close();
+		file.Close();
+	}
+}
+
+
 CString SMSFile::addSubject(Subject sub)
 {
-	if(subjects.find(sub.num) == subjects.end())
+	if (subjects.find(sub.num) == subjects.end())
 	{
 		subjects[sub.num] = sub;
 		return _T("课程添加成功！");
@@ -67,7 +100,7 @@ CString SMSFile::addSubject(Subject sub)
 
 CString SMSFile::delSubject(int32_t num)
 {
-	for(auto s : students)
+	for (auto s : students)
 	{
 		if (s.second.subjects.find(num) != s.second.subjects.end())
 		{
@@ -76,12 +109,13 @@ CString SMSFile::delSubject(int32_t num)
 			return msg;
 		}
 	}
+	subjects.erase(num);
 	return _T("课程已删除。");
 }
 
 CString SMSFile::addStudent(Student student)
 {
-	if(students.find(student.num) == students.end())
+	if (students.find(student.num) == students.end())
 	{
 		students[student.num] = student;
 		return _T("学生已添加");
@@ -104,4 +138,3 @@ Student* SMSFile::getStudent(int64_t num)
 	}
 	return &students[num];
 }
-

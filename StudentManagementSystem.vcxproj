@@ -29,7 +29,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
@@ -44,7 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
@@ -189,6 +189,7 @@
     <ClInclude Include="SMSFile.h" />
     <ClInclude Include="StudentManagementSystem.h" />
     <ClInclude Include="StudentManagementSystemDlg.h" />
+    <ClInclude Include="SubjectEdit.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +202,7 @@
     <ClCompile Include="SMSFile.cpp" />
     <ClCompile Include="StudentManagementSystem.cpp" />
     <ClCompile Include="StudentManagementSystemDlg.cpp" />
+    <ClCompile Include="SubjectEdit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="StudentManagementSystem.rc" />

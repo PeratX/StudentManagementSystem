@@ -33,10 +33,15 @@ public:
 	virtual void Serialize(CArchive& ar) override;
 	map<int64_t, Student> students;
 	map<int32_t, Subject> subjects;
-	CString addSubject(Subject sub);
-	CString delSubject(int32_t num);
-	CString addStudent(Student student);
-	CString delStudent(int64_t num);
-	Student* getStudent(int64_t num);
+	CString addSubject(Subject);
+	CString delSubject(int32_t);
+	CString addStudent(Student);
+	CString delStudent(int64_t);
+	Student* getStudent(int64_t);
+	CString path;
+	bool fileOpened = false;
+	void Save();
+	void Load();
+	void Open(CString);
 };
 
