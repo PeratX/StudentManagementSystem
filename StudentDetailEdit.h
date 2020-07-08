@@ -12,6 +12,7 @@ public:
 	StudentDetailEdit(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~StudentDetailEdit();
 	Student stu;
+	map<int32_t, Subject> *subjects;
 	void RefreshList();
 
 // 对话框数据
@@ -27,4 +28,6 @@ public:
 	virtual BOOL OnInitDialog();
 	CStatic stuInfo;
 	CListCtrl subList;
+	afx_msg void OnBnClickedBtnDelSub();
+	afx_msg void OnBnClickedBtnAddSub();
 };

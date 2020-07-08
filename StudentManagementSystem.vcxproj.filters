@@ -45,6 +45,9 @@
     <ClInclude Include="StudentDetailEdit.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="AddMarkEdit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StudentManagementSystem.cpp">
@@ -66,6 +69,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="StudentDetailEdit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AddMarkEdit.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

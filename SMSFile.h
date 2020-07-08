@@ -16,13 +16,13 @@ struct SubjectInfo
 {
 	Subject* sub;
 	int32_t mark;
-	double credit;
 };
 
 struct Student
 {
 	int64_t num;
 	CString name;
+	double credit;
 	map<int32_t, SubjectInfo> subjects = {};
 };
 

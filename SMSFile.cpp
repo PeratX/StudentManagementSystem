@@ -16,10 +16,10 @@ void SMSFile::Serialize(CArchive& ar)
 		ar << int(students.size());
 		for (auto s : students)
 		{
-			ar << s.second.name << s.second.num << int(s.second.subjects.size());
+			ar << s.second.name << s.second.num << s.second.credit << int(s.second.subjects.size());
 			for (auto i : s.second.subjects)
 			{
-				ar << i.second.sub->num << i.second.mark << i.second.credit;
+				ar << i.second.sub->num << i.second.mark;
 			}
 		}
 	}
@@ -39,12 +39,12 @@ void SMSFile::Serialize(CArchive& ar)
 		{
 			Student stu;
 			int cnt;
-			ar >> stu.name >> stu.num >> cnt;
+			ar >> stu.name >> stu.num >> stu.credit >> cnt;
 			for (auto j = 0; j < cnt; j++)
 			{
 				int32_t subNum;
 				SubjectInfo info;
-				ar >> subNum >> info.mark >> info.credit;
+				ar >> subNum >> info.mark;
 				info.sub = &subjects[subNum];
 				stu.subjects.insert(pair<int32_t, SubjectInfo>(subNum, info));
 			}
@@ -63,7 +63,7 @@ void SMSFile::Open(CString p)
 
 void SMSFile::Load()
 {
-	if(fileOpened)
+	if (fileOpened)
 	{
 		CFile file;
 		file.Open(path, CFile::modeRead);
@@ -76,7 +76,7 @@ void SMSFile::Load()
 
 void SMSFile::Save()
 {
-	if(fileOpened)
+	if (fileOpened)
 	{
 		CFile file;
 		file.Open(path, CFile::modeCreate | CFile::modeWrite);
@@ -92,6 +92,10 @@ CString SMSFile::addSubject(Subject sub)
 {
 	if (subjects.find(sub.num) == subjects.end())
 	{
+		if (sub.num < 10000 || sub.num > 99999)
+		{
+			return _T("非法的课程序号");
+		}
 		subjects[sub.num] = sub;
 		Save();
 		return _T("课程添加成功！");
@@ -119,7 +123,7 @@ CString SMSFile::addStudent(Student student)
 {
 	if (students.find(student.num) == students.end())
 	{
-		if(student.num < 0 || student.num > 99999999)
+		if (student.num < 10000000 || student.num > 99999999)
 		{
 			return _T("非法的学号");
 		}

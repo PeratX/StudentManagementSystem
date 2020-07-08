@@ -26,6 +26,7 @@ void StudentEdit::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT_STU_ID, editStuId);
 	DDX_Control(pDX, IDC_EDIT_STU_NAME, editStuName);
+	DDX_Control(pDX, IDC_EDIT_STU_CREDIT, editCredit);
 }
 
 
@@ -42,5 +43,7 @@ void StudentEdit::OnOK()
 	CString buf;
 	editStuId.GetWindowTextW(buf);
 	num = _ttoi(buf);
+	editCredit.GetWindowTextW(buf);
+	credit = _tstof(buf);
 	CDialogEx::OnOK();
 }

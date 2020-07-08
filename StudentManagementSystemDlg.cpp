@@ -82,6 +82,7 @@ BEGIN_MESSAGE_MAP(CStudentManagementSystemDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_SEARCH_NUM, &CStudentManagementSystemDlg::OnBnClickedBtnSearchNum)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_SUB, &CStudentManagementSystemDlg::OnDblclkListSub)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_STU, &CStudentManagementSystemDlg::OnDblclkListStu)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -130,8 +131,10 @@ BOOL CStudentManagementSystemDlg::OnInitDialog()
 
 	subList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	subList.InsertColumn(0, _T("课程序号"), LVCFMT_LEFT, 100);
-	subList.InsertColumn(1, _T("课程名称"), LVCFMT_LEFT, 100);
-	//subList.InsertColumn(2, _T("平均分"), LVCFMT_LEFT, 100);
+	subList.InsertColumn(1, _T("课程名称"), LVCFMT_LEFT, 200);
+	subList.InsertColumn(2, _T("总人数"), LVCFMT_LEFT, 100);
+	subList.InsertColumn(3, _T("平均分"), LVCFMT_LEFT, 100);
+	subList.InsertColumn(4, _T("及格率"), LVCFMT_LEFT, 100);
 
 	stuList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	stuList.InsertColumn(0, _T("学号"), LVCFMT_LEFT, 100);
@@ -246,12 +249,16 @@ void CStudentManagementSystemDlg::RefreshSubjects()
 	subList.DeleteAllItems();
 	auto it = sms.subjects.begin();
 	int i = 0;
-	while(it != sms.subjects.end())
+	while (it != sms.subjects.end())
 	{
 		auto sub = it->second;
+		auto stat = StatSubject(sub);
 		subList.InsertItem(i, _T(""));
 		subList.SetItemText(i, 0, CString(to_string(sub.num).c_str()));
 		subList.SetItemText(i, 1, sub.name);
+		subList.SetItemText(i, 2, CString(to_string(stat.total).c_str()));
+		subList.SetItemText(i, 3, DoubleToString(stat.avg));
+		subList.SetItemText(i, 4, DoubleToString(stat.passed));
 		i++;
 		++it;
 	}
@@ -269,13 +276,7 @@ void CStudentManagementSystemDlg::AddStudentsToList(map<int64_t, Student> studen
 		stuList.SetItemText(i, 0, CString(to_string(stu.num).c_str()));
 		stuList.SetItemText(i, 1, stu.name);
 		stuList.SetItemText(i, 2, CString(to_string(stu.subjects.size()).c_str()));
-		double ttl = 0;
-		for(auto sub:stu.subjects)
-		{
-			auto info = sub.second;
-			ttl += info.credit;
-		}
-		stuList.SetItemText(i, 3, CString(to_string(ttl).c_str()));
+		stuList.SetItemText(i, 3, DoubleToString(stu.credit));
 		i++;
 		++it;
 	}
@@ -291,9 +292,9 @@ void CStudentManagementSystemDlg::RefreshStudents()
 void CStudentManagementSystemDlg::OnBnClickedBtnDelSub()
 {
 	int n = subList.GetNextItem(-1, LVNI_SELECTED);
-	if(n != -1)
+	if (n != -1)
 	{
-		sms.delSubject(_ttoi(subList.GetItemText(n, 0)));
+		MessageBox(sms.delSubject(_ttoi(subList.GetItemText(n, 0))));
 		RefreshSubjects();
 	}
 }
@@ -304,7 +305,7 @@ void CStudentManagementSystemDlg::OnBnClickedBtnAddStu()
 	StudentEdit edit;
 	if (edit.DoModal() == IDOK)
 	{
-		MessageBox(sms.addStudent({ edit.num, edit.name }));
+		MessageBox(sms.addStudent({edit.num, edit.name, edit.credit}));
 		RefreshStudents();
 	}
 }
@@ -315,7 +316,7 @@ void CStudentManagementSystemDlg::OnBnClickedBtnDelStu()
 	int n = stuList.GetNextItem(-1, LVNI_SELECTED);
 	if (n != -1)
 	{
-		sms.delStudent(_ttoi(stuList.GetItemText(n, 0)));
+		MessageBox(sms.delStudent(_ttoi(stuList.GetItemText(n, 0))));
 		RefreshStudents();
 	}
 }
@@ -331,7 +332,7 @@ void CStudentManagementSystemDlg::OnBnClickedBtnSearch()
 	CString name;
 	editSearch.GetWindowTextW(name);
 	auto it = sms.students.begin();
-	while(it != sms.students.end())
+	while (it != sms.students.end())
 	{
 		auto stu = it->second;
 		if (stu.name == name)
@@ -369,13 +370,100 @@ void CStudentManagementSystemDlg::OnOK()
 	//防止回车退出
 }
 
+CString CStudentManagementSystemDlg::DoubleToString(double num)
+{
+	CString buf;
+	buf.Format(_T("%.2f"), num);
+	return buf;
+}
+
+
+SubjectStatistic CStudentManagementSystemDlg::StatSubject(Subject sub)
+{
+	SubjectStatistic subjectStat;
+	subjectStat.info = _T("");
+	subjectStat.stat = _T("");
+	auto it = sms.students.begin();
+	map<int, int> stat;
+	int ttlMark = 0, passed = 0;
+	while (it != sms.students.end())
+	{
+		auto stu = it->second;
+		if (stu.subjects.find(sub.num) != stu.subjects.end())
+		{
+			subjectStat.total++;
+			auto info = stu.subjects[sub.num];
+			ttlMark += info.mark;
+			int segment = info.mark / 10;
+			if (segment == 10)
+			{
+				segment = 9;
+			}
+			if (stat.find(segment) == stat.end())
+			{
+				stat[segment] = 0;
+			}
+			stat[segment]++;
+			if (info.mark >= 60)
+			{
+				passed++;
+			}
+			CString buffer;
+			buffer.Format(_T("学号：%lld\t姓名：%s \t成绩：%d\n"), stu.num, stu.name, info.mark);
+			subjectStat.info += buffer;
+		}
+		++it;
+	}
+	if (subjectStat.total > 0)
+	{
+		subjectStat.avg = static_cast<float>(ttlMark) / subjectStat.total;
+		subjectStat.passed = static_cast<float>(passed) / subjectStat.total * 100;
+		auto iter = stat.begin();
+		while (iter != stat.end())
+		{
+			CString buf;
+			buf.Format(_T("%d ~ %d 分\t\t共 %d 人\t占比 %.2f%%\n"),
+			           iter->first * 10,
+			           (iter->first + 1) * 10 - (iter->first == 9 ? 0 : 1),
+			           iter->second,
+			           static_cast<float>(iter->second) / subjectStat.total * 100
+			);
+			subjectStat.stat += buf;
+			++iter;
+		}
+	}
+	return subjectStat;
+}
 
 void CStudentManagementSystemDlg::OnDblclkListSub(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	
-	CString buf;
-	buf.Format(_T("课程序号：%d\t课程名称：%s\t班级人数：%d\n%s\n及格率：%d\t平均分：%d"));
+
+	int n = subList.GetNextItem(-1, LVNI_SELECTED);
+	if (n != -1)
+	{
+		auto sub = sms.subjects[_ttoi(subList.GetItemText(n, 0))];
+		auto stat = StatSubject(sub);
+		if (stat.total == 0)
+		{
+			MessageBoxW(_T("此门课程下没有学生！"));
+		}
+		else
+		{
+			CString buf;
+			buf.Format(_T("课程序号：%d\t课程名称：%s\t人数：%d\n\n%s\n及格率：%.2f%%\t平均分：%.2f\n\n分数段统计：\n%s"),
+			           sub.num,
+			           sub.name,
+			           stat.total,
+			           stat.info,
+			           stat.passed,
+			           stat.avg,
+			           stat.stat
+			);
+			MessageBoxW(buf);
+		}
+	}
+
 	*pResult = 0;
 }
 
@@ -384,16 +472,26 @@ void CStudentManagementSystemDlg::OnDblclkListStu(NMHDR* pNMHDR, LRESULT* pResul
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int n = stuList.GetNextItem(-1, LVNI_SELECTED);
-	if(n != -1)
+	if (n != -1)
 	{
 		StudentDetailEdit edit;
 		edit.stu = *sms.getStudent(_ttoi(stuList.GetItemText(n, 0)));
+		edit.subjects = &sms.subjects;
 		//忽略空指针错误，正常不会出错
 		if (edit.DoModal() == IDOK)
 		{
 			sms.students[edit.stu.num] = edit.stu;
 			RefreshStudents();
+			RefreshSubjects();
+			sms.Save();
 		}
 	}
 	*pResult = 0;
+}
+
+
+void CStudentManagementSystemDlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+	sms.Save();
 }

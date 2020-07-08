@@ -6,6 +6,14 @@
 
 #include "SMSFile.h"
 
+struct SubjectStatistic
+{
+	double avg = 0;
+	double passed = 0;
+	int total = 0;
+	CString info;
+	CString stat;
+};
 
 // CStudentManagementSystemDlg 对话框
 class CStudentManagementSystemDlg : public CDialogEx
@@ -13,6 +21,7 @@ class CStudentManagementSystemDlg : public CDialogEx
 // 构造
 public:
 	CStudentManagementSystemDlg(CWnd* pParent = nullptr);	// 标准构造函数
+	CString DoubleToString(double);
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
@@ -40,6 +49,7 @@ protected:
 	void RefreshSubjects();
 	void RefreshStudents();
 	void AddStudentsToList(map<int64_t, Student>);
+	SubjectStatistic StatSubject(Subject);
 
 public:
 	SMSFile sms;
@@ -58,4 +68,5 @@ public:
 	virtual void OnOK();
 	afx_msg void OnDblclkListSub(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDblclkListStu(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnDestroy();
 };

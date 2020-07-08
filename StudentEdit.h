@@ -13,6 +13,7 @@ public:
 	virtual ~StudentEdit();
 	int64_t num;
 	CString name;
+	double credit;
 
 	
 // 对话框数据
@@ -28,4 +29,5 @@ public:
 	CEdit editStuId;
 	CEdit editStuName;
 	virtual void OnOK();
+	CEdit editCredit;
 };
