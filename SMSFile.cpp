@@ -19,7 +19,7 @@ void SMSFile::Serialize(CArchive& ar)
 			ar << s.second.name << s.second.num << int(s.second.subjects.size());
 			for (auto i : s.second.subjects)
 			{
-				ar << i.second.sub.num << i.second.mark << i.second.credit;
+				ar << i.second.sub->num << i.second.mark << i.second.credit;
 			}
 		}
 	}
@@ -45,7 +45,7 @@ void SMSFile::Serialize(CArchive& ar)
 				int32_t subNum;
 				SubjectInfo info;
 				ar >> subNum >> info.mark >> info.credit;
-				info.sub = subjects[subNum];
+				info.sub = &subjects[subNum];
 				stu.subjects.insert(pair<int32_t, SubjectInfo>(subNum, info));
 			}
 			students.insert(pair<int64_t, Student>(stu.num, stu));
@@ -93,6 +93,7 @@ CString SMSFile::addSubject(Subject sub)
 	if (subjects.find(sub.num) == subjects.end())
 	{
 		subjects[sub.num] = sub;
+		Save();
 		return _T("课程添加成功！");
 	}
 	return _T("已有相同课程!");
@@ -110,6 +111,7 @@ CString SMSFile::delSubject(int32_t num)
 		}
 	}
 	subjects.erase(num);
+	Save();
 	return _T("课程已删除。");
 }
 
@@ -117,7 +119,12 @@ CString SMSFile::addStudent(Student student)
 {
 	if (students.find(student.num) == students.end())
 	{
+		if(student.num < 0 || student.num > 99999999)
+		{
+			return _T("非法的学号");
+		}
 		students[student.num] = student;
+		Save();
 		return _T("学生已添加");
 	}
 	return _T("该学号已存在");
@@ -127,6 +134,7 @@ CString SMSFile::addStudent(Student student)
 CString SMSFile::delStudent(int64_t num)
 {
 	students.erase(num);
+	Save();
 	return _T("已删除该学生");
 }
 

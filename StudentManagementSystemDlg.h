@@ -38,6 +38,8 @@ protected:
 	void OpenFile(CString path);
 	void SaveFile(CString path);
 	void RefreshSubjects();
+	void RefreshStudents();
+	void AddStudentsToList(map<int64_t, Student>);
 
 public:
 	SMSFile sms;
@@ -47,4 +49,13 @@ public:
 	afx_msg void OnBnClickedBtnOpenFile();
 	afx_msg void OnBnClickedBtnSaveFile();
 	afx_msg void OnBnClickedBtnDelSub();
+	afx_msg void OnBnClickedBtnAddStu();
+	afx_msg void OnBnClickedBtnDelStu();
+	afx_msg void OnBnClickedBtnResetSearch();
+	CEdit editSearch;
+	afx_msg void OnBnClickedBtnSearch();
+	afx_msg void OnBnClickedBtnSearchNum();
+	virtual void OnOK();
+	afx_msg void OnDblclkListSub(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnDblclkListStu(NMHDR* pNMHDR, LRESULT* pResult);
 };

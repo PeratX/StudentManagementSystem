@@ -7,6 +7,8 @@
 #include "StudentManagementSystemDlg.h"
 #include "afxdialogex.h"
 #include "SubjectEdit.h"
+#include "StudentEdit.h"
+#include "StudentDetailEdit.h"
 
 #include <string>
 using namespace std;
@@ -62,6 +64,7 @@ void CStudentManagementSystemDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_STU, stuList);
 	DDX_Control(pDX, IDC_LIST_SUB, subList);
+	DDX_Control(pDX, IDC_EDIT_SEARCH, editSearch);
 }
 
 BEGIN_MESSAGE_MAP(CStudentManagementSystemDlg, CDialogEx)
@@ -72,6 +75,13 @@ BEGIN_MESSAGE_MAP(CStudentManagementSystemDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_OPEN_FILE, &CStudentManagementSystemDlg::OnBnClickedBtnOpenFile)
 	ON_BN_CLICKED(IDC_BTN_SAVE_FILE, &CStudentManagementSystemDlg::OnBnClickedBtnSaveFile)
 	ON_BN_CLICKED(IDC_BTN_DEL_SUB, &CStudentManagementSystemDlg::OnBnClickedBtnDelSub)
+	ON_BN_CLICKED(IDC_BTN_ADD_STU, &CStudentManagementSystemDlg::OnBnClickedBtnAddStu)
+	ON_BN_CLICKED(IDC_BTN_DEL_STU, &CStudentManagementSystemDlg::OnBnClickedBtnDelStu)
+	ON_BN_CLICKED(IDC_BTN_RESET_SEARCH, &CStudentManagementSystemDlg::OnBnClickedBtnResetSearch)
+	ON_BN_CLICKED(IDC_BTN_SEARCH, &CStudentManagementSystemDlg::OnBnClickedBtnSearch)
+	ON_BN_CLICKED(IDC_BTN_SEARCH_NUM, &CStudentManagementSystemDlg::OnBnClickedBtnSearchNum)
+	ON_NOTIFY(NM_DBLCLK, IDC_LIST_SUB, &CStudentManagementSystemDlg::OnDblclkListSub)
+	ON_NOTIFY(NM_DBLCLK, IDC_LIST_STU, &CStudentManagementSystemDlg::OnDblclkListStu)
 END_MESSAGE_MAP()
 
 
@@ -121,7 +131,13 @@ BOOL CStudentManagementSystemDlg::OnInitDialog()
 	subList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	subList.InsertColumn(0, _T("课程序号"), LVCFMT_LEFT, 100);
 	subList.InsertColumn(1, _T("课程名称"), LVCFMT_LEFT, 100);
-	subList.InsertColumn(2, _T("平均分"), LVCFMT_LEFT, 100);
+	//subList.InsertColumn(2, _T("平均分"), LVCFMT_LEFT, 100);
+
+	stuList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	stuList.InsertColumn(0, _T("学号"), LVCFMT_LEFT, 100);
+	stuList.InsertColumn(1, _T("姓名"), LVCFMT_LEFT, 100);
+	stuList.InsertColumn(2, _T("课程数量"), LVCFMT_LEFT, 100);
+	stuList.InsertColumn(3, _T("总学分"), LVCFMT_LEFT, 100);
 
 	return TRUE; // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -180,6 +196,7 @@ void CStudentManagementSystemDlg::OpenFile(CString path)
 	sms.Open(path);
 	UpdateWindowTitle();
 	RefreshSubjects();
+	RefreshStudents();
 }
 
 void CStudentManagementSystemDlg::SaveFile(CString path)
@@ -227,18 +244,49 @@ void CStudentManagementSystemDlg::OnBnClickedBtnAddSub()
 void CStudentManagementSystemDlg::RefreshSubjects()
 {
 	subList.DeleteAllItems();
-	auto iter = sms.subjects.begin();
+	auto it = sms.subjects.begin();
 	int i = 0;
-	while(iter != sms.subjects.end())
+	while(it != sms.subjects.end())
 	{
-		auto sub = iter->second;
+		auto sub = it->second;
 		subList.InsertItem(i, _T(""));
 		subList.SetItemText(i, 0, CString(to_string(sub.num).c_str()));
 		subList.SetItemText(i, 1, sub.name);
 		i++;
-		++iter;
+		++it;
 	}
 }
+
+void CStudentManagementSystemDlg::AddStudentsToList(map<int64_t, Student> students)
+{
+	stuList.DeleteAllItems();
+	auto it = students.begin();
+	int i = 0;
+	while (it != students.end())
+	{
+		auto stu = it->second;
+		stuList.InsertItem(i, _T(""));
+		stuList.SetItemText(i, 0, CString(to_string(stu.num).c_str()));
+		stuList.SetItemText(i, 1, stu.name);
+		stuList.SetItemText(i, 2, CString(to_string(stu.subjects.size()).c_str()));
+		double ttl = 0;
+		for(auto sub:stu.subjects)
+		{
+			auto info = sub.second;
+			ttl += info.credit;
+		}
+		stuList.SetItemText(i, 3, CString(to_string(ttl).c_str()));
+		i++;
+		++it;
+	}
+}
+
+
+void CStudentManagementSystemDlg::RefreshStudents()
+{
+	AddStudentsToList(sms.students);
+}
+
 
 void CStudentManagementSystemDlg::OnBnClickedBtnDelSub()
 {
@@ -248,4 +296,104 @@ void CStudentManagementSystemDlg::OnBnClickedBtnDelSub()
 		sms.delSubject(_ttoi(subList.GetItemText(n, 0)));
 		RefreshSubjects();
 	}
+}
+
+
+void CStudentManagementSystemDlg::OnBnClickedBtnAddStu()
+{
+	StudentEdit edit;
+	if (edit.DoModal() == IDOK)
+	{
+		MessageBox(sms.addStudent({ edit.num, edit.name }));
+		RefreshStudents();
+	}
+}
+
+
+void CStudentManagementSystemDlg::OnBnClickedBtnDelStu()
+{
+	int n = stuList.GetNextItem(-1, LVNI_SELECTED);
+	if (n != -1)
+	{
+		sms.delStudent(_ttoi(stuList.GetItemText(n, 0)));
+		RefreshStudents();
+	}
+}
+
+void CStudentManagementSystemDlg::OnBnClickedBtnResetSearch()
+{
+	RefreshStudents();
+}
+
+void CStudentManagementSystemDlg::OnBnClickedBtnSearch()
+{
+	map<int64_t, Student> students;
+	CString name;
+	editSearch.GetWindowTextW(name);
+	auto it = sms.students.begin();
+	while(it != sms.students.end())
+	{
+		auto stu = it->second;
+		if (stu.name == name)
+		{
+			students.insert(pair<int64_t, Student>(stu.num, stu));
+		}
+		++it;
+	}
+	AddStudentsToList(students);
+}
+
+
+void CStudentManagementSystemDlg::OnBnClickedBtnSearchNum()
+{
+	map<int64_t, Student> students;
+	CString buf;
+	editSearch.GetWindowTextW(buf);
+	int64_t num = _ttoi(buf);
+	auto it = sms.students.begin();
+	while (it != sms.students.end())
+	{
+		auto stu = it->second;
+		if (stu.num == num)
+		{
+			students.insert(pair<int64_t, Student>(stu.num, stu));
+		}
+		++it;
+	}
+	AddStudentsToList(students);
+}
+
+
+void CStudentManagementSystemDlg::OnOK()
+{
+	//防止回车退出
+}
+
+
+void CStudentManagementSystemDlg::OnDblclkListSub(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	
+	CString buf;
+	buf.Format(_T("课程序号：%d\t课程名称：%s\t班级人数：%d\n%s\n及格率：%d\t平均分：%d"));
+	*pResult = 0;
+}
+
+
+void CStudentManagementSystemDlg::OnDblclkListStu(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	int n = stuList.GetNextItem(-1, LVNI_SELECTED);
+	if(n != -1)
+	{
+		StudentDetailEdit edit;
+		edit.stu = *sms.getStudent(_ttoi(stuList.GetItemText(n, 0)));
+		//忽略空指针错误，正常不会出错
+		if (edit.DoModal() == IDOK)
+		{
+			sms.students[edit.stu.num] = edit.stu;
+			RefreshStudents();
+		}
+	}
+	*pResult = 0;
 }

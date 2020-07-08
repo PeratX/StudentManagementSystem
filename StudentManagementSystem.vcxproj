@@ -187,6 +187,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SMSFile.h" />
+    <ClInclude Include="StudentDetailEdit.h" />
+    <ClInclude Include="StudentEdit.h" />
     <ClInclude Include="StudentManagementSystem.h" />
     <ClInclude Include="StudentManagementSystemDlg.h" />
     <ClInclude Include="SubjectEdit.h" />
@@ -200,6 +202,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SMSFile.cpp" />
+    <ClCompile Include="StudentDetailEdit.cpp" />
+    <ClCompile Include="StudentEdit.cpp" />
     <ClCompile Include="StudentManagementSystem.cpp" />
     <ClCompile Include="StudentManagementSystemDlg.cpp" />
     <ClCompile Include="SubjectEdit.cpp" />

@@ -14,7 +14,7 @@ struct Subject //¿Î³Ì
 
 struct SubjectInfo
 {
-	Subject sub;
+	Subject* sub;
 	int32_t mark;
 	double credit;
 };
