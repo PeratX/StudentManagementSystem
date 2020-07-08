@@ -1,5 +1,4 @@
-﻿
-// StudentManagementSystemDlg.h: 头文件
+﻿// StudentManagementSystemDlg.h: 头文件
 //
 
 #pragma once
@@ -18,21 +17,21 @@ struct SubjectStatistic
 // CStudentManagementSystemDlg 对话框
 class CStudentManagementSystemDlg : public CDialogEx
 {
-// 构造
+	// 构造
 public:
-	CStudentManagementSystemDlg(CWnd* pParent = nullptr);	// 标准构造函数
+	CStudentManagementSystemDlg(CWnd* pParent = nullptr); // 标准构造函数
 	CString DoubleToString(double);
 
-// 对话框数据
+	// 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_STUDENTMANAGEMENTSYSTEM_DIALOG };
 #endif
 
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV 支持
 
 
-// 实现
+	// 实现
 protected:
 	HICON m_hIcon;
 
@@ -43,7 +42,7 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	DECLARE_MESSAGE_MAP()
+DECLARE_MESSAGE_MAP()
 	void OpenFile(CString path);
 	void SaveFile(CString path);
 	void RefreshSubjects();
@@ -69,4 +68,6 @@ public:
 	afx_msg void OnDblclkListSub(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDblclkListStu(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDestroy();
+	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnBnClickedBtnNewFile();
 };

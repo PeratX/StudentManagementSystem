@@ -17,6 +17,7 @@
 #define IDC_BTN_OPEN_FILE               1000
 #define IDC_BUTTON2                     1001
 #define IDC_BTN_SAVE_FILE               1001
+#define IDC_BTN_NEW_FILE                1002
 #define IDC_TAB1                        1003
 #define IDC_BUTTON3                     1004
 #define IDC_BTN_ADD_STU                 1004

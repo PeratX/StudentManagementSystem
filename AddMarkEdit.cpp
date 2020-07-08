@@ -14,7 +14,6 @@ IMPLEMENT_DYNAMIC(AddMarkEdit, CDialogEx)
 AddMarkEdit::AddMarkEdit(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG_ADD_SUB_INFO, pParent)
 {
-
 }
 
 AddMarkEdit::~AddMarkEdit()
@@ -63,6 +62,6 @@ BOOL AddMarkEdit::OnInitDialog()
 	}
 	ComboSub.SetCurSel(0);
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-				  // 异常: OCX 属性页应返回 FALSE
+	return TRUE; // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
 }

@@ -14,7 +14,6 @@ IMPLEMENT_DYNAMIC(StudentEdit, CDialogEx)
 StudentEdit::StudentEdit(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG_ADD_STU, pParent)
 {
-
 }
 
 StudentEdit::~StudentEdit()

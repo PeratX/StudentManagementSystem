@@ -127,6 +127,10 @@ CString SMSFile::addStudent(Student student)
 		{
 			return _T("非法的学号");
 		}
+		if (student.name.IsEmpty())
+		{
+			return _T("姓名不能为空");
+		}
 		students[student.num] = student;
 		Save();
 		return _T("学生已添加");

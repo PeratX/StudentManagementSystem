@@ -8,8 +8,8 @@ using namespace std;
 
 struct Subject //¿Î³Ì
 {
-	int32_t num;//ÐòºÅ
-	CString name;//Ãû³Æ
+	int32_t num; //ÐòºÅ
+	CString name; //Ãû³Æ
 };
 
 struct SubjectInfo
@@ -28,7 +28,7 @@ struct Student
 
 class SMSFile : public CObject
 {
-	DECLARE_SERIAL(SMSFile)
+DECLARE_SERIAL(SMSFile)
 public:
 	virtual void Serialize(CArchive& ar) override;
 	map<int64_t, Student> students;
@@ -44,4 +44,3 @@ public:
 	void Load();
 	void Open(CString);
 };
-

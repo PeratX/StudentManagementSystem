@@ -83,6 +83,8 @@ BEGIN_MESSAGE_MAP(CStudentManagementSystemDlg, CDialogEx)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_SUB, &CStudentManagementSystemDlg::OnDblclkListSub)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_STU, &CStudentManagementSystemDlg::OnDblclkListStu)
 	ON_WM_DESTROY()
+	ON_WM_DROPFILES()
+	ON_BN_CLICKED(IDC_BTN_NEW_FILE, &CStudentManagementSystemDlg::OnBnClickedBtnNewFile)
 END_MESSAGE_MAP()
 
 
@@ -141,6 +143,12 @@ BOOL CStudentManagementSystemDlg::OnInitDialog()
 	stuList.InsertColumn(1, _T("姓名"), LVCFMT_LEFT, 100);
 	stuList.InsertColumn(2, _T("课程数量"), LVCFMT_LEFT, 100);
 	stuList.InsertColumn(3, _T("总学分"), LVCFMT_LEFT, 100);
+
+	auto file = AfxGetApp()->m_lpCmdLine;
+	if (PathFileExists(file))
+	{
+		OpenFile(file);
+	}
 
 	return TRUE; // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -494,4 +502,27 @@ void CStudentManagementSystemDlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 	sms.Save();
+}
+
+
+void CStudentManagementSystemDlg::OnDropFiles(HDROP hDropInfo)
+{
+	WCHAR path[200];
+	DragQueryFile(hDropInfo, 0, path, 256);
+	OpenFile(CString(path));
+	DragFinish(hDropInfo);
+	CDialogEx::OnDropFiles(hDropInfo);
+}
+
+
+void CStudentManagementSystemDlg::OnBnClickedBtnNewFile()
+{
+	sms.Save();
+	sms.fileOpened = false;
+	sms.path = "请点击另存为保存文件";
+	sms.subjects.clear();
+	sms.students.clear();
+	UpdateWindowTitle();
+	RefreshStudents();
+	RefreshSubjects();
 }
