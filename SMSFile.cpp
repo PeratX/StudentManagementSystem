@@ -57,6 +57,8 @@ void SMSFile::Open(CString p)
 {
 	path = p;
 	fileOpened = true;
+	students.clear();
+	subjects.clear();
 	Load();
 }
 
